@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +13,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.moonstudio.voltex.moontalk.R;
+import com.moonstudio.voltex.moontalk.chat.MessageActivity;
+import com.moonstudio.voltex.moontalk.model.UserModel;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,30 +26,20 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.moonstudio.voltex.moontalk.R;
-import com.moonstudio.voltex.moontalk.chat.MessageActivity;
-import com.moonstudio.voltex.moontalk.model.UserModel;
 
 /**
- * Created by unyongkim on 2018. 3. 24..
+ * Created by myeongsic on 2017. 9. 11..
  */
 
 public class PeopleFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_people, container, false);
+        View view = inflater.inflate(R.layout.fragment_peole, container, false);
         RecyclerView recyclerView = (RecyclerView)view.findViewById(R.id.people_fragment_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(inflater.getContext()));
         recyclerView.setAdapter(new PeopleFragmentRecyclerViewAdapter());
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.people_fragment_floatingButton);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(view.getContext(), SelectFriendActivity.class));
-            }
-        });
 
         return view;
     }
@@ -120,6 +112,7 @@ public class PeopleFragment extends Fragment {
 
                 }
             });
+
             if(userModels.get(position).comment != null){
                 ((CustomViewHolder) holder).textView_comment.setText(userModels.get(position).comment);
             }
@@ -140,7 +133,7 @@ public class PeopleFragment extends Fragment {
                 super(view);
                 imageView = (ImageView) view.findViewById(R.id.frienditem_imageview);
                 textView = (TextView) view.findViewById(R.id.frienditem_textview);
-                textView_comment = (TextView) view.findViewById(R.id.frienditem_textview_comment);
+                textView_comment = (TextView)view.findViewById(R.id.frienditem_textview_comment);
             }
         }
     }

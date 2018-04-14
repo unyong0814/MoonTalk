@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "645640500191",
+    "firebase_url": "https://moontalk-6794c.firebaseio.com",
+    "project_id": "moontalk-6794c",
+    "storage_bucket": "moontalk-6794c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:645640500191:android:f2afce3aaf2190e2",
+        "android_client_info": {
+          "package_name": "com.moonstudio.voltex.moontalk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "645640500191-kb4u60m5ukvnqik9a5783mgppn0np90d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.moonstudio.voltex.moontalk",
+            "certificate_hash": "0acf5027676a3c74629392041a943bc8a109c5eb"
+          }
+        },
+        {
+          "client_id": "645640500191-pvuptqqavasjei0ghakb7k9qbar76cao.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC31IHN7smGltVFsYSZd7y0uU1nqjgmSg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "645640500191-pvuptqqavasjei0ghakb7k9qbar76cao.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,13 +24,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.moonstudio.voltex.moontalk.R;
 import com.moonstudio.voltex.moontalk.chat.MessageActivity;
+import com.moonstudio.voltex.moontalk.model.ChatModel;
 import com.moonstudio.voltex.moontalk.model.UserModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SelectFreindActivity extends AppCompatActivity {
-
+    ChatModel chatModel = new ChatModel();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +40,16 @@ public class SelectFreindActivity extends AppCompatActivity {
         recyclerView.setAdapter(new SelectFriendRecyclerViewAdapter());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        Button button = (Button) findViewById(R.id.selectFriendActivity_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String myUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                chatModel.users.put(myUid, true);
+                FirebaseDatabase.getInstance().getReference().child("chatrooms").push().setValue(chatModel);
 
+            }
+        });
 
     }
 
@@ -115,6 +127,21 @@ public class SelectFreindActivity extends AppCompatActivity {
                 ((CustomViewHolder) holder).textView_comment.setText(userModels.get(position).comment);
             }
 
+
+            ((CustomViewHolder) holder).chechBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if(isChecked) {
+                        //체크된 상태
+                        chatModel.users.put(userModels.get(position).uid, true);
+                    } else {
+                        //체크 취소된 상태
+                        chatModel.users.remove(userModels.get(position));
+
+
+                    }
+                }
+            });
         }
 
         @Override

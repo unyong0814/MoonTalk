@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.moonstudio.voltex.moontalk.R;
+import com.moonstudio.voltex.moontalk.chat.GroupMessageActivity;
 import com.moonstudio.voltex.moontalk.chat.MessageActivity;
 import com.moonstudio.voltex.moontalk.model.ChatModel;
 import com.moonstudio.voltex.moontalk.model.UserModel;
@@ -122,32 +123,46 @@ public class ChatFragment extends Fragment {
             //메시지를 내림 차순으로 정렬 후 마지막 메시지의 키값을 가져옴
             Map<String, ChatModel.Comment> commentMap = new TreeMap<>(Collections.<String>reverseOrder());
             commentMap.putAll(chatModels.get(position).comments);
-            String lastMessageKey = (String) commentMap.keySet().toArray()[0];
-            customViewHolder.textView_last_message
-                    .setText(chatModels.get(position).comments.get(lastMessageKey).message);
+
+            if (commentMap.keySet().toArray().length > 0 ) {
+
+                String lastMessageKey = (String) commentMap.keySet().toArray()[0];
+                customViewHolder.textView_last_message
+                        .setText(chatModels.get(position).comments.get(lastMessageKey).message);
+
+                //어떻게 받아올지 지역을 선택함.
+                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+                long unixTime = (long) chatModels.get(position).comments.get(lastMessageKey).timestamp;
+                Date date = new Date(unixTime);
+                customViewHolder.textView_timestamp.setText(simpleDateFormat.format(date));
+
+            }
+
+
             customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(view.getContext(), MessageActivity.class);
+                    Intent intent = null;
+                    if(chatModels.get(position).users.size() > 2) {
+                        intent = new Intent(view.getContext(), GroupMessageActivity.class);
+                    } else {
+                        intent = new Intent(view.getContext(), MessageActivity.class);
+                        intent.putExtra("destinationUid", destinationUsers.get(position));
+                    }
                     //누구랑 대화할지 넘겨줌.
-                    intent.putExtra("destinationUid", destinationUsers.get(position));
+
 
                     ActivityOptions activityOptions = null;
 
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                        activityOptions = ActivityOptions.makeCustomAnimation(view.getContext(), R.anim.fromright,R.anim.toleft);
-                        startActivity(intent,activityOptions.toBundle());
+                        activityOptions = ActivityOptions.makeCustomAnimation(view.getContext(), R.anim.fromright, R.anim.toleft);
+                        startActivity(intent, activityOptions.toBundle());
                     }
 
 
                 }
             });
 
-            //어떻게 받아올지 지역을 선택함.
-            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-            long unixTime = (long) chatModels.get(position).comments.get(lastMessageKey).timestamp;
-            Date date = new Date(unixTime);
-            customViewHolder.textView_timestamp.setText(simpleDateFormat.format(date));
 
         }
 

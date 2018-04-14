@@ -33,6 +33,8 @@
 
         <activity android:name=".fragment.SelectFriendActivity">
         </activity>
+        <activity android:name=".fragment.SelectFreindActivity">
+        </activity>
     </application>
 
 </manifest>

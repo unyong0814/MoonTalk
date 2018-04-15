@@ -26,10 +26,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.moonstudio.voltex.moontalk.R;
 import com.moonstudio.voltex.moontalk.model.ChatModel;
+import com.moonstudio.voltex.moontalk.model.NotificationModel;
 import com.moonstudio.voltex.moontalk.model.UserModel;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +40,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class GroupMessageActivity extends AppCompatActivity {
     Map<String,UserModel> users = new HashMap<>();
@@ -51,6 +62,9 @@ public class GroupMessageActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
 
     List<ChatModel.Comment> comments = new ArrayList<>();
+
+
+    int peopleCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,13 +119,74 @@ public class GroupMessageActivity extends AppCompatActivity {
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                editText.setText("");
+
+                                FirebaseDatabase.getInstance().getReference()
+                                        .child("chatrooms")
+                                        .child(destinationRoom)
+                                        .child("users")
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                Map<String, Boolean> map = (Map<String, Boolean>) dataSnapshot.getValue();
+
+                                                for(String item : map.keySet()) {
+                                                    if(item.equals(uid)) {
+                                                        //내아이디가있으면 푸시 보낼 필요 없음.
+                                                        continue;
+                                                    }
+                                                    sendGcm(users.get(item).pushToken);
+                                                }
+                                                editText.setText("");
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
                             }
                         });
 
             }
         });
     }
+
+
+    void sendGcm(String pushToken) {
+        Gson gson = new Gson();
+
+        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        NotificationModel notificationModel = new NotificationModel();
+        notificationModel.to = pushToken;
+        notificationModel.notification.title = userName;
+        notificationModel.notification.text = editText.getText().toString();
+        notificationModel.data.title = userName;
+        notificationModel.data.text = editText.getText().toString();
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf8"), gson.toJson(notificationModel));
+        Request request = new Request.Builder()
+                .header("Content-Type", "Application/json")
+                .addHeader("Authorization", "key=AIzaSyAwQWx9D5_4ZzpNn2Yp7THZ7SEHm_Hg-lU")
+                .url("https://gcm-http.googleapis.com/gcm/send")
+                .post(requestBody)
+                .build();
+
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+            }
+        });
+
+    }
+
 
     class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -200,7 +275,7 @@ public class GroupMessageActivity extends AppCompatActivity {
                 messageViewHolder.linearLayout_destination.setVisibility(View.INVISIBLE);
                 messageViewHolder.textView_message.setTextSize(25);
                 messageViewHolder.linearLayout_main.setGravity(Gravity.RIGHT);
-                //setReadCounter(position, messageViewHolder.textView_readCounter_left);
+                setReadCounter(position, messageViewHolder.textView_readCounter_left);
             }
             //상대방이 보낸 메시지
             else {
@@ -214,13 +289,55 @@ public class GroupMessageActivity extends AppCompatActivity {
                 messageViewHolder.textView_message.setText(comments.get(position).message);
                 messageViewHolder.textView_message.setTextSize(25);
                 messageViewHolder.linearLayout_main.setGravity(Gravity.LEFT);
-            //    setReadCounter(position, messageViewHolder.textView_readCounter_right);
+                setReadCounter(position, messageViewHolder.textView_readCounter_right);
             }
             long unixTime = (long) comments.get(position).timestamp;
             Date date = new Date(unixTime);
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
             String time = simpleDateFormat.format(date);
             messageViewHolder.textView_timestamp.setText(time);
+        }
+
+        void setReadCounter(final int position, final TextView textView) {
+            if (peopleCount == 0) {
+
+                //총인원 몇명인지?
+                FirebaseDatabase.getInstance().getReference()
+                        .child("chatrooms")
+                        .child(destinationRoom)
+                        .child("users")
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Map<String, Boolean> users = (Map<String, Boolean>) dataSnapshot.getValue();
+                                //전체인원 - 메시지 읽은 인원.
+                                peopleCount = users.size();
+                                int count = peopleCount - comments.get(position).readUsers.size();
+                                if (count > 0) {
+                                    textView.setVisibility(View.VISIBLE);
+                                    textView.setText(String.valueOf(count));
+                                } else {
+                                    textView.setVisibility(View.INVISIBLE);
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+            } else {
+
+                int count = peopleCount - comments.get(position).readUsers.size();
+                if (count > 0) {
+                    textView.setVisibility(View.VISIBLE);
+                    textView.setText(String.valueOf(count));
+                } else {
+                    textView.setVisibility(View.INVISIBLE);
+                }
+            }
+
         }
 
         @Override

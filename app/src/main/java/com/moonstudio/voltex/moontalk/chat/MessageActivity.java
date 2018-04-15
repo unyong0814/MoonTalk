@@ -171,7 +171,7 @@ public class MessageActivity extends AppCompatActivity {
                         for (DataSnapshot item : dataSnapshot.getChildren()) {
                             ChatModel chatModel = item.getValue(ChatModel.class);
 
-                            if (chatModel.users.containsKey(destinationUid)) {
+                            if (chatModel.users.containsKey(destinationUid) && chatModel.users.size() == 2) {
                                 chatRoomUid = item.getKey(); //Child의 chatroom key값을 가져옴
                                 mButton.setEnabled(true);
                                 mRecyclerView.setLayoutManager(new LinearLayoutManager(MessageActivity.this));

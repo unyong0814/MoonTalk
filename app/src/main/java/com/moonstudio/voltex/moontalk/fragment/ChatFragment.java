@@ -55,6 +55,8 @@ public class ChatFragment extends Fragment {
 
     class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private List<ChatModel> chatModels = new ArrayList<>();
+        private List<String> keys = new ArrayList<>();
+
         private String uid;
         private  ArrayList<String> destinationUsers = new ArrayList<>(); //대화하는 유저들.
         //생성자
@@ -67,6 +69,7 @@ public class ChatFragment extends Fragment {
                     chatModels.clear();
                     for(DataSnapshot item : dataSnapshot.getChildren() ) {
                         chatModels.add(item.getValue(ChatModel.class));
+                        keys.add(item.getKey());
                     }
                     notifyDataSetChanged();
                 }
@@ -145,6 +148,7 @@ public class ChatFragment extends Fragment {
                     Intent intent = null;
                     if(chatModels.get(position).users.size() > 2) {
                         intent = new Intent(view.getContext(), GroupMessageActivity.class);
+                        intent.putExtra("destinationRoom", keys.get(position));
                     } else {
                         intent = new Intent(view.getContext(), MessageActivity.class);
                         intent.putExtra("destinationUid", destinationUsers.get(position));

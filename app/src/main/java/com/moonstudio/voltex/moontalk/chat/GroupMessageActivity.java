@@ -38,7 +38,8 @@ public class GroupMessageActivity extends AppCompatActivity {
     private UserModel destinationUserModel;
     private DatabaseReference databaseReference;
     private ValueEventListener valueEventListener;
-    private  RecyclerView mRecyclerView;
+
+    private RecyclerView mRecyclerView;
 
     List<ChatModel.Comment> comments = new ArrayList<>();
 
@@ -65,7 +66,7 @@ public class GroupMessageActivity extends AppCompatActivity {
             }
         });
 
-        mRecyclerView = findViewById(R.id.groupMessageActivity_recyclerview);
+        mRecyclerView = (RecyclerView)findViewById(R.id.groupMessageActivity_recyclerview);
         mRecyclerView.setAdapter(new GroupMessageRecyclerViewAdapter());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -100,7 +101,7 @@ public class GroupMessageActivity extends AppCompatActivity {
     class GroupMessageRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public GroupMessageRecyclerViewAdapter() {
-            //getMessageList();
+            getMessageList();
         }
 
 

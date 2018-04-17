@@ -1,5 +1,6 @@
 package com.moonstudio.voltex.moontalk;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -37,7 +38,7 @@ public class SignupActivity extends AppCompatActivity {
     private String splash_background;
     private ImageView profile;
     private Uri imageUri;
-
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +87,10 @@ public class SignupActivity extends AppCompatActivity {
                 }
 
                 if(imageUri != null) {
+                    mProgressDialog = new ProgressDialog(SignupActivity.this);
+                    mProgressDialog.setMessage("잠시만 기다려주세요...");
+
+                    mProgressDialog.show();
                     //이미지 선택 하였을 때 처리...
                     Log.i(TAG, "Firebase에 Authentificationd에 이메일 / 패스워드 등록됨");
 
@@ -128,6 +133,7 @@ public class SignupActivity extends AppCompatActivity {
                                                     .setValue(userModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
+                                                            mProgressDialog.dismiss();
                                                             SignupActivity.this.finish();
                                                         }
                                             });

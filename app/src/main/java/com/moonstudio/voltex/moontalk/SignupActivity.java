@@ -88,7 +88,7 @@ public class SignupActivity extends AppCompatActivity {
 
                 if(imageUri != null) {
                     mProgressDialog = new ProgressDialog(SignupActivity.this);
-                    mProgressDialog.setMessage("잠시만 기다려주세요...");
+                    mProgressDialog.setMessage("사용자 정보를 등록하고 있습니다..");
 
                     mProgressDialog.show();
                     //이미지 선택 하였을 때 처리...
